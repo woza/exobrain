@@ -24,20 +24,7 @@ func main() {
         return
      }
 
-     handle, err := os.Open("plaintext_in.txt")
-     if err != nil {
-        fmt.Println("Failed to open input")
-        return
-     }
-    
-     defer handle.Close()
-
-     plain_bytes := []byte{};
-     _,err = handle.Read(plain_bytes)
-     if err != nil {
-        fmt.Println("Failed to read input")
-        return
-     }
+     plain_bytes := get_file_contents("plaintext_in.txt");
     
      cipher_bytes := []byte{}
      nonce_bytes := []byte{0,1,2,3,4,5,6,7,8,9,10,11}
@@ -53,6 +40,31 @@ func main() {
     
 }
 
+func get_file_contents( path string ) []byte {
+	info,err := os.Stat(path);
+	if err != nil {
+		fmt.Println("Failed to stat file: ", err);
+		return nil;
+	}
 
+	var ret = make([]byte, info.Size());
+	handle,err := os.Open(path);
+	if err != nil {
+		fmt.Println("Failed to open file: ", err);
+		return nil;
+	}
+	defer handle.Close()
 
+	n,err := handle.Read(ret);
+	if err != nil {
+		fmt.Println("Failed to read file: ", err);
+		return nil;
+	}
 
+	if int64(n) != info.Size() {
+		fmt.Println("Bad number of bytes returned: ", n);
+		return nil;
+	}
+
+	return ret;
+}
