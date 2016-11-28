@@ -50,7 +50,8 @@ class listener(SocketServer.BaseRequestHandler):
             print "Displaying password '%s'" %pw
             display.send(struct.pack('>II', listener.CMD_DISPLAY_SHOW, len(pw)))
             display.send(pw)
-            self.request.send(struct.pack('>I', listener.STATUS_OK))
+            status = comms.read_all(self.request, 4)
+            self.request.send(status)
             return
         
         if code == listener.EXIT:
@@ -59,8 +60,6 @@ class listener(SocketServer.BaseRequestHandler):
                          
         print "Received unknown command %d" % code
                 
-
-        
 
 cert_file='server.crt'
 key_file='server.key'

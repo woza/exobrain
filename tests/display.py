@@ -19,6 +19,9 @@ class Display( Frame ):
 
     CMD_SHOW = 0
     CMD_EXIT = 1
+
+    ENCODE_ASCII = 0
+    ENCODE_UTF8 = 1
     def __init__(self, root):
         Frame.__init__(self, root)
         self.root = root
@@ -44,21 +47,30 @@ class Display( Frame ):
                                       ca_file)
         self.server.bind(('127.0.0.1', 6655))
         self.server.listen(3)
-        self.client, _ = self.server.accept()
-        self.client.setblocking(False)
-        self.need_cmd()
+        self.server.setblocking(False)
         self.root.after(100, self.network_callback)
 
 
     def network_callback(self):
         try:
+            if self.net_state == Display.NET_STATE_ACCEPTING:
+                try:
+                    self.client,_ = self.server.accept()
+                    self.client.setblocking(False)
+                    self.need_cmd()
+                except socket.error as e:
+                    if e.errno != 11:
+                        raise e                    
             if self.net_state == Display.NET_STATE_PARSE_CMD:
                 self.read_loop(4)
                 cmd = struct.unpack('>I', self.buff)[0]
+                print "CMD == " + str(cmd)
                 if cmd == Display.CMD_EXIT:
+                    print "CMD EXIT received"
                     sys.exit(0)
                 if cmd == Display.CMD_SHOW:
-                    self.need_size()                    
+                    print "CMD SHOW received"
+                    self.need_size()            
             if self.net_state == Display.NET_STATE_PARSE_SIZE:
                 self.read_loop(4)
                 self.msg_size = struct.unpack('>I', self.buff)[0]
@@ -66,19 +78,39 @@ class Display( Frame ):
                 self.need_payload()
             if self.net_state == Display.NET_STATE_PARSE_MSG:
                 self.read_loop(self.msg_size)
-                print "Received password '%s'" % self.buff
-                self.msg.set(self.buff)
-                self.need_cmd()
+                encoding = struct.unpack('>I', self.buff[:4])[0]
+                raw_msg = self.buff[4:]
+                codec = None
+                if encoding == Display.ENCODE_ASCII:
+                    codec = 'ascii'
+                if encoding == Display.ENCODE_UTF8:
+                    codec = 'utf-8'
+                if codec is None:
+                    print "Unable to detect codec for encoding %d" % encoding
+                    sys.exit(1)
+                pw = unicode(raw_msg, codec)
+                print "Received password '%s'" % pw
+                self.write_success()
+                print "Wrote success"
+                self.need_client()
         except would_block:
             pass
 
         self.root.after(100, self.network_callback)
-
+        
+    def write_success(self):
+        msg = struct.pack('>I', 0)
+        todo = len(msg)
+        off = 0
+        while todo > 0:            
+            sz = self.client.send(msg[off:])
+            off += sz
+            todo -= sz
+        
     def read_loop(self, req_len):
         try:
             while len(self.buff) < req_len :
                 got = self.client.recv(req_len-len(self.buff))
-                print "Read " + str(len(got))
                 if len(got) == 0:
                     raise would_block()
                 self.buff += got
@@ -95,6 +127,10 @@ class Display( Frame ):
 
     def need_cmd(self):
         self.net_state = Display.NET_STATE_PARSE_CMD
+        self.buff = b''
+
+    def need_client(self):
+        self.net_state = Display.NET_STATE_ACCEPTING
         self.buff = b''
 
 display = Display(Tk())
