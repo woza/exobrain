@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+        "fmt"
 )
 
 const (
@@ -62,6 +63,8 @@ type Input_Request interface{
 func (self *Input_Request_Header) UnmarshalBinary(data[] byte) error{
 	self.size = binary.BigEndian.Uint32( data[:4] )
 	self.cmd  = binary.BigEndian.Uint32( data[4:8] )
+	fmt.Println("Unmarshalled size ",self.size)
+	fmt.Println("Unmarshalled command ",self.cmd)
 	return nil
 }
 
@@ -73,13 +76,16 @@ func (self Input_Response_Query) MarshalBinary() ([]byte, error){
 	status_len := 4
 	encoding_len := 4
 	body_sz_len := 4
-	ret_len := status_len + encoding_len + body_sz_len + body_sz
+	count_len := 4
+	ret_len := status_len + encoding_len + body_sz_len + body_sz + count_len
 	ret := make([]byte, ret_len)
 	off := 0
 	binary.BigEndian.PutUint32(ret[off:status_len], STATUS_OK)
 	off = off + status_len
 	binary.BigEndian.PutUint32(ret[off:off + encoding_len], self.Encoding)
 	off = off + encoding_len
+	binary.BigEndian.PutUint32(ret[off:off + count_len], uint32(len(self.Tags)))
+	off = off + count_len
 	binary.BigEndian.PutUint32(ret[off:off + body_sz_len], uint32(body_sz))
 	off += body_sz_len
 	for _,k := range self.Tags {

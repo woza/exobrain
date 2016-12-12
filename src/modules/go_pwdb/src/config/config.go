@@ -63,7 +63,7 @@ func CoreParser( src []string ) (Config, error){
 	args.StringVar(&ret.Display_Hostname, "dhost", "",
 		"Hostname to validate display host")
 	args.Parse(src)
-
+	fmt.Println("Parsing config file ",conf_path);
 	handle,err := os.Open(conf_path)
 	if err == nil {
 		defer handle.Close()

@@ -11,11 +11,12 @@ import(
 )
 
 func main(){
-	fake_argv := []string{"-db", os.Args[1]}
-	tag := strings.TrimSpace(os.Args[2])
+	fake_argv := []string{"-db", os.Args[1],
+	  		      "-salt", os.Args[2]}
+	tag := strings.TrimSpace(os.Args[3])
 	var pw = ""
 	if len(os.Args) > 3 {
-		pw = strings.TrimSpace(os.Args[3])
+		pw = strings.TrimSpace(os.Args[4])
 	}else{
 		fmt.Print("Enter password: ")
 		raw_pw, err := terminal.ReadPassword(int(syscall.Stdin))

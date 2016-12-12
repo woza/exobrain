@@ -28,6 +28,7 @@ func main() {
 		fmt.Println("Failed to load database: ",err)
 		return
 	}
+	fmt.Println("Listening on ",conf.Accept_Address)
 	ln, err := net.Listen("tcp", conf.Accept_Address)
 	if err != nil {
 		fmt.Println("Failed to create listening socket");
@@ -39,12 +40,14 @@ func main() {
 		if err != nil {
 			fmt.Println("Failed to accept client");
 		} else{
+		        fmt.Println("Accepted client")
 			handle_client( client, conf );
 		}
 	}
 }
 
-func handle_client( client net.Conn, conf config.Config ){
+func handle_client( tcp_client net.Conn, conf config.Config ){
+        client := upgrade_to_tls(tcp_client,conf)
 	ok := protocol.Input_Response{ protocol.STATUS_OK }
 	fail := protocol.Input_Response{ protocol.STATUS_FAIL }
 	
@@ -99,7 +102,35 @@ func handle_client( client net.Conn, conf config.Config ){
 	}
 }
 
+func upgrade_to_tls( src net.Conn, conf config.Config ) *tls.Conn {
+        tls_conf,err := prep_tls_config( conf )
+	if err != nil{
+		fmt.Println("Failed to prep TLS config: ", err)
+		return nil
+	}
+
+	return tls.Server( src, tls_conf)
+}
+	
+
+
 func connect_to_display( conf config.Config ) (*tls.Conn, error){
+        tls_conf,err := prep_tls_config( conf )
+	if err != nil{
+		fmt.Println("Failed to prep TLS config: ", err)
+		return nil, err
+	}
+
+	tls_conf.ServerName = conf.Display_Hostname
+	display,err := tls.Dial( "tcp", conf.Display_Address, tls_conf )
+	if err != nil{
+		fmt.Println("Failed to connect to display")
+		fmt.Println(err)
+	}
+	return display,err
+}
+
+func prep_tls_config( conf config.Config ) (*tls.Config, error ){
 	cert, err := tls.LoadX509KeyPair(
 		conf.TLS_cert_path,
 		conf.TLS_key_path)
@@ -119,16 +150,8 @@ func connect_to_display( conf config.Config ) (*tls.Conn, error){
 	display_conf := &tls.Config{
 		Certificates : []tls.Certificate{cert},
 		RootCAs : pool,
-		ServerName : conf.Display_Hostname,
 		ClientAuth: tls.RequireAndVerifyClientCert,
 		InsecureSkipVerify : false,
 	};
-	display,err := tls.Dial( "tcp", conf.Display_Address, display_conf )
-	if err != nil{
-		fmt.Println("Failed to connect to display")
-		fmt.Println(err)
-	}
-	return display,err
-}
-	
-	
+	return display_conf,nil;
+}	
