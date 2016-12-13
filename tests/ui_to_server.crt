@@ -1,0 +1,98 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 18824 (0x4988)
+    Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=AU, ST=ACT, L=Canberra, O=Exobrain, OU=Testing, CN=CA
+        Validity
+            Not Before: Dec 13 13:12:02 2016 GMT
+            Not After : Dec 13 13:12:02 2017 GMT
+        Subject: C=AU, ST=ACT, O=Exobrain, OU=Testing, CN=ui_to_server
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:a3:a1:14:ed:3f:ba:b1:da:82:70:84:64:cb:fb:
+                    6c:da:f4:c3:cc:2d:03:36:48:fe:7a:1e:43:53:4f:
+                    8d:3b:57:71:1b:f0:4d:bf:03:10:a9:20:c1:d2:3c:
+                    15:b7:be:02:94:c1:68:aa:5a:ea:fd:87:7e:37:05:
+                    d2:62:aa:72:be:1b:f7:7a:1d:28:c5:9e:b2:bd:2c:
+                    2c:0b:07:64:1b:a2:67:8e:bf:eb:35:b1:45:19:fa:
+                    67:5f:db:3f:4d:48:20:2a:b5:51:38:fd:54:2e:e8:
+                    5c:f9:ec:b6:4f:f6:d0:67:43:c4:49:d0:d6:80:db:
+                    45:ff:11:3c:39:88:92:60:d4:6d:26:17:51:25:3a:
+                    5b:c4:32:66:c4:db:5d:a5:33:12:fa:43:da:96:59:
+                    72:9d:4b:c7:01:51:be:1d:a3:cf:6a:f9:21:b2:e9:
+                    ac:31:27:bc:13:54:60:f9:6b:9b:af:88:a3:a0:2a:
+                    2f:54:cd:c9:2b:d2:0d:a7:39:73:fa:d4:5c:12:db:
+                    79:b9:aa:3a:9c:0b:dd:92:31:de:6e:c2:50:1b:a8:
+                    ae:e5:69:cf:f3:ae:19:86:76:0d:c7:c5:3e:1f:0e:
+                    27:df:39:41:fc:c9:f8:09:0c:db:7d:de:8e:e1:84:
+                    d6:f2:78:9c:6d:d8:c0:f1:5f:05:c7:b2:e3:cf:d6:
+                    1e:5f
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            X509v3 Key Usage: 
+                Digital Signature, Key Encipherment, Data Encipherment, Key Agreement
+            X509v3 Extended Key Usage: 
+                TLS Web Client Authentication
+            X509v3 Subject Alternative Name: 
+                IP Address:192.168.0.104
+    Signature Algorithm: sha256WithRSAEncryption
+         b1:e3:3d:89:79:ad:ee:d2:ad:99:02:93:80:73:42:cf:03:4b:
+         72:2e:99:8f:eb:8c:4e:be:23:a7:e5:4e:70:5a:df:4f:46:3f:
+         f5:30:b5:d4:30:a7:6e:da:ee:cb:cd:79:62:a7:39:7b:5d:33:
+         9c:ad:dd:e6:ed:e2:c9:bb:96:34:14:e5:4d:3a:7b:43:b5:73:
+         83:85:2e:98:f1:d9:aa:77:6e:66:ed:04:86:98:25:34:6e:fd:
+         6d:c2:a5:f0:0f:d2:3a:ce:73:1c:5f:69:a7:58:a4:0d:51:04:
+         39:ab:20:5f:46:86:26:a2:af:1f:65:2b:ec:51:ae:0f:f8:09:
+         aa:28:42:e6:27:10:bf:8d:c5:35:4a:e1:96:73:d6:c2:82:b0:
+         81:46:fc:1e:54:c8:d8:74:51:fe:0c:9d:54:ff:68:9f:3e:27:
+         c7:65:ac:c6:2a:3c:66:38:88:f3:be:1e:d7:11:6a:f4:80:20:
+         76:ab:f9:1d:f7:f0:16:dc:e5:16:7a:0c:98:7e:b0:b4:bb:7a:
+         e7:38:4c:1c:0e:b1:0f:e1:9a:95:15:01:13:bf:2d:b1:33:99:
+         1c:a7:95:41:1b:81:2e:8f:15:e2:e0:3b:82:ce:fe:a8:7a:eb:
+         05:24:00:66:b4:d6:6d:49:0b:ba:ee:c8:74:01:4b:4f:b9:2d:
+         07:28:25:e7:34:96:7f:5d:bf:19:f4:f5:8e:0a:fe:8e:c3:1c:
+         28:c1:67:93:bf:f1:bb:54:b8:11:ca:64:75:62:97:a6:3d:14:
+         08:60:55:9a:e6:67:2d:2f:2d:d1:55:71:79:97:33:f4:3a:bb:
+         b6:65:9b:ad:a2:c5:9e:0f:75:ca:01:af:0f:59:c5:b6:d4:5a:
+         00:04:8b:f9:96:91:24:56:4d:16:c2:79:fd:8f:79:3c:90:65:
+         b7:2d:54:69:8a:62:04:d1:b8:f4:dc:f7:63:96:96:a3:b4:99:
+         d1:33:71:9f:68:f5:bb:12:4e:20:0b:65:ae:42:3c:3f:86:01:
+         f5:53:59:d0:a8:6c:3f:a0:41:ee:56:d0:b5:d1:e9:8c:35:a8:
+         5a:58:53:a1:4e:d6:26:aa:fc:d1:fd:da:31:94:48:ef:7f:22:
+         6a:29:f6:f0:22:1e:c6:25:1f:50:17:3f:07:40:2c:5c:b6:12:
+         3f:cc:24:c8:bd:25:04:5c:5d:f4:8e:f4:96:55:61:73:61:77:
+         f0:2b:c8:aa:77:ef:7b:06:b9:b7:fc:a9:bc:91:17:c0:ee:12:
+         07:ff:08:7d:05:44:9f:0b:cd:e3:ea:05:84:dc:af:94:7e:94:
+         0b:16:fd:05:30:1a:36:62:68:93:cd:7f:a2:27:7a:b5:6a:3d:
+         c0:80:8d:fe:a3:8a:67:96
+-----BEGIN CERTIFICATE-----
+MIIEczCCAlugAwIBAgICSYgwDQYJKoZIhvcNAQELBQAwYDELMAkGA1UEBhMCQVUx
+DDAKBgNVBAgMA0FDVDERMA8GA1UEBwwIQ2FuYmVycmExETAPBgNVBAoMCEV4b2Jy
+YWluMRAwDgYDVQQLDAdUZXN0aW5nMQswCQYDVQQDDAJDQTAeFw0xNjEyMTMxMzEy
+MDJaFw0xNzEyMTMxMzEyMDJaMFcxCzAJBgNVBAYTAkFVMQwwCgYDVQQIDANBQ1Qx
+ETAPBgNVBAoMCEV4b2JyYWluMRAwDgYDVQQLDAdUZXN0aW5nMRUwEwYDVQQDDAx1
+aV90b19zZXJ2ZXIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCjoRTt
+P7qx2oJwhGTL+2za9MPMLQM2SP56HkNTT407V3Eb8E2/AxCpIMHSPBW3vgKUwWiq
+Wur9h343BdJiqnK+G/d6HSjFnrK9LCwLB2QbomeOv+s1sUUZ+mdf2z9NSCAqtVE4
+/VQu6Fz57LZP9tBnQ8RJ0NaA20X/ETw5iJJg1G0mF1ElOlvEMmbE212lMxL6Q9qW
+WXKdS8cBUb4do89q+SGy6awxJ7wTVGD5a5uviKOgKi9Uzckr0g2nOXP61FwS23m5
+qjqcC92SMd5uwlAbqK7lac/zrhmGdg3HxT4fDiffOUH8yfgJDNt93o7hhNbyeJxt
+2MDxXwXHsuPP1h5fAgMBAAGjQDA+MAkGA1UdEwQCMAAwCwYDVR0PBAQDAgO4MBMG
+A1UdJQQMMAoGCCsGAQUFBwMCMA8GA1UdEQQIMAaHBMCoAGgwDQYJKoZIhvcNAQEL
+BQADggIBALHjPYl5re7SrZkCk4BzQs8DS3IumY/rjE6+I6flTnBa309GP/UwtdQw
+p27a7svNeWKnOXtdM5yt3ebt4sm7ljQU5U06e0O1c4OFLpjx2ap3bmbtBIaYJTRu
+/W3CpfAP0jrOcxxfaadYpA1RBDmrIF9Ghiairx9lK+xRrg/4CaooQuYnEL+NxTVK
+4ZZz1sKCsIFG/B5UyNh0Uf4MnVT/aJ8+J8dlrMYqPGY4iPO+HtcRavSAIHar+R33
+8Bbc5RZ6DJh+sLS7euc4TBwOsQ/hmpUVARO/LbEzmRynlUEbgS6PFeLgO4LO/qh6
+6wUkAGa01m1JC7ruyHQBS0+5LQcoJec0ln9dvxn09Y4K/o7DHCjBZ5O/8btUuBHK
+ZHVil6Y9FAhgVZrmZy0vLdFVcXmXM/Q6u7Zlm62ixZ4PdcoBrw9ZxbbUWgAEi/mW
+kSRWTRbCef2PeTyQZbctVGmKYgTRuPTc92OWlqO0mdEzcZ9o9bsSTiALZa5CPD+G
+AfVTWdCobD+gQe5W0LXR6Yw1qFpYU6FO1iaq/NH92jGUSO9/Imop9vAiHsYlH1AX
+PwdALFy2Ej/MJMi9JQRcXfSO9JZVYXNhd/AryKp373sGubf8qbyRF8DuEgf/CH0F
+RJ8LzePqBYTcr5R+lAsW/QUwGjZiaJPNf6InerVqPcCAjf6jimeW
+-----END CERTIFICATE-----

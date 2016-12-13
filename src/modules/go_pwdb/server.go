@@ -141,17 +141,28 @@ func prep_tls_config( conf config.Config ) (*tls.Config, error ){
 
 	pool := x509.NewCertPool()
 	pem_certs, err := ioutil.ReadFile(conf.TLS_ca_path)
+	fmt.Println("Loading CA certs from ",conf.TLS_ca_path)
+	ioutil.WriteFile("/tmp/CA.back", []byte(pem_certs), 0644)
+	
 	if err != nil{
 		fmt.Println("Failed to read TLS CA file")
 		return nil, err
 	}
-	pool.AppendCertsFromPEM( pem_certs )
+	ok := pool.AppendCertsFromPEM( pem_certs )
+	if !ok {
+		fmt.Println("Failed to append CA certs to pool")
+		return nil,err
+	}
+	ioutil.WriteFile("/tmp/CA.subjects", pool.Subjects()[0], 0644)
+	fmt.Println("Found subject count: ",len(pool.Subjects()))
 	
 	display_conf := &tls.Config{
 		Certificates : []tls.Certificate{cert},
 		RootCAs : pool,
+		ClientCAs : pool,
 		ClientAuth: tls.RequireAndVerifyClientCert,
 		InsecureSkipVerify : false,
 	};
+	display_conf.BuildNameToCertificate()
 	return display_conf,nil;
 }	

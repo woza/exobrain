@@ -1,0 +1,98 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 6897 (0x1af1)
+    Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=AU, ST=ACT, L=Canberra, O=Exobrain, OU=Testing, CN=CA
+        Validity
+            Not Before: Dec 13 13:12:03 2016 GMT
+            Not After : Dec 13 13:12:03 2017 GMT
+        Subject: C=AU, ST=ACT, O=Exobrain, OU=Testing, CN=ui
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:c1:7c:f0:95:fa:ab:cc:aa:5a:94:05:94:81:d2:
+                    5f:b4:23:d5:a6:b1:18:df:83:08:0f:34:79:dd:11:
+                    f6:9d:5f:c9:16:94:0c:26:75:6a:ee:0a:92:44:e6:
+                    b8:27:04:e1:54:aa:fa:5b:fe:30:d1:98:95:2e:a3:
+                    d2:57:63:b2:01:56:de:b7:3e:ee:09:4c:17:12:8d:
+                    44:50:f7:8a:91:ec:d2:d8:81:d9:2f:fc:da:00:78:
+                    81:ba:87:da:84:5c:de:08:f7:eb:bc:2b:a2:1c:41:
+                    89:4a:01:44:36:3d:20:bf:5e:76:45:3a:34:9c:f6:
+                    df:4e:06:a5:8f:9c:df:4c:ac:e0:82:46:db:15:a9:
+                    b5:77:ef:e3:37:06:39:4f:74:1f:37:31:0c:03:4a:
+                    cc:8b:0a:14:5c:98:9e:8b:92:31:e9:be:81:35:c8:
+                    0a:f7:ee:f4:dd:49:42:c1:fb:f5:d6:c8:c6:9e:9c:
+                    e4:42:10:52:fe:7f:7b:b1:48:bf:16:d5:34:c6:16:
+                    32:c8:53:3a:dc:3d:52:e8:97:8d:9b:6b:cb:ff:22:
+                    9c:00:89:e0:6b:21:ca:08:97:42:5b:cd:d3:9a:64:
+                    13:db:43:75:e6:04:00:30:db:ac:0b:90:7c:d1:90:
+                    c8:c9:96:f3:60:75:a5:20:4a:1b:fb:8b:e3:6d:ae:
+                    13:fb
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            X509v3 Key Usage: 
+                Digital Signature, Key Encipherment, Data Encipherment, Key Agreement
+            X509v3 Extended Key Usage: 
+                TLS Web Client Authentication, TLS Web Server Authentication
+            X509v3 Subject Alternative Name: 
+                IP Address:192.168.0.104
+    Signature Algorithm: sha256WithRSAEncryption
+         53:f9:0f:03:01:d9:ff:27:17:41:ed:33:6a:8b:3c:2c:88:f5:
+         5f:9c:c9:cb:2a:2e:08:9c:21:18:ef:a4:cf:8f:4d:d2:18:5e:
+         32:98:7d:cc:81:3d:39:be:ac:6a:b8:9e:83:68:2b:49:42:b7:
+         74:60:be:96:5f:e4:12:f9:05:ea:84:76:cb:cb:5c:38:14:bf:
+         a1:c4:4c:0c:27:38:40:99:c8:02:e0:4f:a4:0f:cf:47:6a:f7:
+         d6:b0:ca:75:df:33:72:1d:5d:14:bc:8f:c8:36:df:a5:eb:3c:
+         39:d2:07:5e:7e:3c:68:ae:be:db:bb:1e:92:42:10:7d:26:81:
+         d7:19:be:35:fb:3f:1d:b9:7b:0c:1c:cd:11:47:98:79:ba:a2:
+         2b:a6:09:ef:a8:5e:cf:dc:ac:df:ec:45:5a:09:e8:79:7b:45:
+         b0:cd:27:57:28:32:30:01:ec:16:af:f3:d2:a8:c4:c1:5e:06:
+         ad:3f:06:ee:a7:29:10:3d:47:d0:c4:42:c4:9b:f4:c2:a4:e9:
+         0a:89:6e:56:88:1e:74:63:20:c5:3a:34:7d:cc:09:b1:ca:16:
+         2c:89:34:f1:11:dd:f0:7a:4d:4d:84:08:2c:57:dd:2d:64:88:
+         8e:db:08:c3:19:db:e0:94:4b:d7:7a:26:ed:14:b7:86:28:ac:
+         23:87:ad:6b:7f:a3:7c:46:18:f5:3d:30:7b:95:75:56:cf:7a:
+         06:8f:02:4c:75:68:42:ca:15:f5:42:e7:f6:bc:09:c5:80:97:
+         19:2b:ac:27:82:ab:5b:07:86:3b:83:24:92:bb:97:50:04:c4:
+         69:91:64:08:0d:fa:ad:7c:e0:e2:54:27:c2:46:b4:91:33:51:
+         ee:c0:8f:99:a6:6a:3a:02:f4:b5:5b:38:31:e0:d1:3f:6f:a5:
+         23:ab:65:95:8b:00:ff:aa:79:c2:e4:8f:10:31:03:27:db:00:
+         ce:b3:ab:64:a7:3c:a1:1c:81:83:58:b0:f7:11:19:36:6b:5d:
+         ff:06:0f:53:29:44:af:fd:cf:26:0a:e9:3a:1f:e6:37:cf:77:
+         f0:eb:28:2f:64:c9:0a:14:f5:6d:d6:e9:e5:4b:28:00:07:6d:
+         9d:1e:10:6e:af:a2:0f:9c:45:7f:5f:52:08:d8:59:49:c5:c3:
+         f8:4b:4b:b4:b5:30:19:c7:14:c9:dc:58:b7:ec:06:27:24:95:
+         91:bf:ea:e7:0e:b2:ec:fa:6f:a7:cf:d0:74:24:72:aa:56:f5:
+         00:94:b5:86:b0:14:40:a9:22:b3:19:94:0d:76:dd:6c:91:d9:
+         ec:43:a8:57:bc:69:9a:eb:05:7c:8e:4c:06:5f:9a:09:c6:d2:
+         61:c3:84:2b:1e:06:f8:51
+-----BEGIN CERTIFICATE-----
+MIIEczCCAlugAwIBAgICGvEwDQYJKoZIhvcNAQELBQAwYDELMAkGA1UEBhMCQVUx
+DDAKBgNVBAgMA0FDVDERMA8GA1UEBwwIQ2FuYmVycmExETAPBgNVBAoMCEV4b2Jy
+YWluMRAwDgYDVQQLDAdUZXN0aW5nMQswCQYDVQQDDAJDQTAeFw0xNjEyMTMxMzEy
+MDNaFw0xNzEyMTMxMzEyMDNaME0xCzAJBgNVBAYTAkFVMQwwCgYDVQQIDANBQ1Qx
+ETAPBgNVBAoMCEV4b2JyYWluMRAwDgYDVQQLDAdUZXN0aW5nMQswCQYDVQQDDAJ1
+aTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMF88JX6q8yqWpQFlIHS
+X7Qj1aaxGN+DCA80ed0R9p1fyRaUDCZ1au4KkkTmuCcE4VSq+lv+MNGYlS6j0ldj
+sgFW3rc+7glMFxKNRFD3ipHs0tiB2S/82gB4gbqH2oRc3gj367wrohxBiUoBRDY9
+IL9edkU6NJz2304GpY+c30ys4IJG2xWptXfv4zcGOU90HzcxDANKzIsKFFyYnouS
+Mem+gTXICvfu9N1JQsH79dbIxp6c5EIQUv5/e7FIvxbVNMYWMshTOtw9UuiXjZtr
+y/8inACJ4GshygiXQlvN05pkE9tDdeYEADDbrAuQfNGQyMmW82B1pSBKG/uL422u
+E/sCAwEAAaNKMEgwCQYDVR0TBAIwADALBgNVHQ8EBAMCA7gwHQYDVR0lBBYwFAYI
+KwYBBQUHAwIGCCsGAQUFBwMBMA8GA1UdEQQIMAaHBMCoAGgwDQYJKoZIhvcNAQEL
+BQADggIBAFP5DwMB2f8nF0HtM2qLPCyI9V+cycsqLgicIRjvpM+PTdIYXjKYfcyB
+PTm+rGq4noNoK0lCt3RgvpZf5BL5BeqEdsvLXDgUv6HETAwnOECZyALgT6QPz0dq
+99awynXfM3IdXRS8j8g236XrPDnSB15+PGiuvtu7HpJCEH0mgdcZvjX7Px25ewwc
+zRFHmHm6oiumCe+oXs/crN/sRVoJ6Hl7RbDNJ1coMjAB7Bav89KoxMFeBq0/Bu6n
+KRA9R9DEQsSb9MKk6QqJblaIHnRjIMU6NH3MCbHKFiyJNPER3fB6TU2ECCxX3S1k
+iI7bCMMZ2+CUS9d6Ju0Ut4YorCOHrWt/o3xGGPU9MHuVdVbPegaPAkx1aELKFfVC
+5/a8CcWAlxkrrCeCq1sHhjuDJJK7l1AExGmRZAgN+q184OJUJ8JGtJEzUe7Aj5mm
+ajoC9LVbODHg0T9vpSOrZZWLAP+qecLkjxAxAyfbAM6zq2SnPKEcgYNYsPcRGTZr
+Xf8GD1MpRK/9zyYK6Tof5jfPd/DrKC9kyQoU9W3W6eVLKAAHbZ0eEG6vog+cRX9f
+UgjYWUnFw/hLS7S1MBnHFMncWLfsBicklZG/6ucOsuz6b6fP0HQkcqpW9QCUtYaw
+FECpIrMZlA123WyR2exDqFe8aZrrBXyOTAZfmgnG0mHDhCseBvhR
+-----END CERTIFICATE-----
