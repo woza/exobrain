@@ -77,11 +77,14 @@ func handle_client( tcp_client net.Conn, conf config.Config ){
 			fmt.Println(tag)
 			pw,err := db.Get(tag)
 			if err != nil{
+				fmt.Println("Failed to retrieve password from database: ",
+					err)
 				_ = fail.Put(client)
 				break
 			}
 			display,err := connect_to_display(conf)
 			if err != nil{
+				fmt.Println("Failed to connect to display")
 				_ = fail.Put(client)
 				break
 			}
@@ -122,6 +125,7 @@ func connect_to_display( conf config.Config ) (*tls.Conn, error){
 	}
 
 	tls_conf.ServerName = conf.Display_Hostname
+	fmt.Println("Connecting to display @ ",conf.Display_Address)
 	display,err := tls.Dial( "tcp", conf.Display_Address, tls_conf )
 	if err != nil{
 		fmt.Println("Failed to connect to display")

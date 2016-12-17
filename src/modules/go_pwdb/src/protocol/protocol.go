@@ -10,6 +10,7 @@ import (
 const (
 	CMD_QUERY_ALL = iota
 	CMD_TRIGGER = iota
+	CMD_DISPLAY_SHOW = iota
 	CMD_EXIT = iota
 )
 
@@ -19,7 +20,6 @@ const (
 )
 
 const (
-	CMD_DISPLAY_SHOW = iota
 	CMD_DISPLAY_EXIT = iota
 )
 type Display_Request_Trigger struct {
@@ -53,6 +53,7 @@ type Input_Request_Exit struct{
 
 type Input_Request_Trigger struct{
 	header Input_Request_Header
+	Encoding uint32
 	payload []byte
 }
 
@@ -63,8 +64,13 @@ type Input_Request interface{
 func (self *Input_Request_Header) UnmarshalBinary(data[] byte) error{
 	self.size = binary.BigEndian.Uint32( data[:4] )
 	self.cmd  = binary.BigEndian.Uint32( data[4:8] )
-	fmt.Println("Unmarshalled size ",self.size)
-	fmt.Println("Unmarshalled command ",self.cmd)
+	return nil
+}
+
+func (self *Input_Request_Trigger) UnmarshalBinary(data[] byte) error{
+	// Assumes header already unmarshalled
+	self.Encoding = binary.BigEndian.Uint32( data[:4] )
+	self.payload = data[4:]
 	return nil
 }
 
@@ -75,19 +81,19 @@ func (self Input_Response_Query) MarshalBinary() ([]byte, error){
 	}
 	status_len := 4
 	encoding_len := 4
-	body_sz_len := 4
+	msg_len_len := 4
 	count_len := 4
-	ret_len := status_len + encoding_len + body_sz_len + body_sz + count_len
-	ret := make([]byte, ret_len)
+	msg_len := msg_len_len + status_len + encoding_len + count_len + body_sz
+	ret := make([]byte, msg_len)
 	off := 0
-	binary.BigEndian.PutUint32(ret[off:status_len], STATUS_OK)
+	binary.BigEndian.PutUint32(ret[off:msg_len_len], uint32(msg_len))
+	off = off + msg_len_len	
+	binary.BigEndian.PutUint32(ret[off:off+status_len], STATUS_OK)
 	off = off + status_len
 	binary.BigEndian.PutUint32(ret[off:off + encoding_len], self.Encoding)
 	off = off + encoding_len
 	binary.BigEndian.PutUint32(ret[off:off + count_len], uint32(len(self.Tags)))
 	off = off + count_len
-	binary.BigEndian.PutUint32(ret[off:off + body_sz_len], uint32(body_sz))
-	off += body_sz_len
 	for _,k := range self.Tags {
 		binary.BigEndian.PutUint32(ret[off:off+4], uint32(len(k)))
 		off = off + 4
@@ -102,8 +108,8 @@ func (self Display_Request_Trigger) MarshalBinary() ([]byte, error){
 	pw_len := len(raw_pw)
 	len := 12 + pw_len
 	ret := make([]byte, len)
-	binary.BigEndian.PutUint32(ret[:4], CMD_DISPLAY_SHOW)
-	binary.BigEndian.PutUint32(ret[4:8], uint32(pw_len + 4))
+	binary.BigEndian.PutUint32(ret[0:4], uint32(len))
+	binary.BigEndian.PutUint32(ret[4:8], CMD_DISPLAY_SHOW)
 	binary.BigEndian.PutUint32(ret[8:12], self.Encoding)
 	copy(ret[12:len], raw_pw)
 	return ret,nil
@@ -127,10 +133,11 @@ func (self Input_Request_Trigger) GetPayload() []byte {
 
 func Fetch_Input_Request( src io.Reader ) (Input_Request, error){
 	head_buff := make([]byte, 8)
-	_,err := src.Read(head_buff)
+	n,err := io.ReadFull(src, head_buff)
 	if err != nil{
 		return Input_Request_Nil{},err
 	}
+	fmt.Println("Fetch_Input_Request read count: ",n)
 	head := Input_Request_Header{}
 	head.UnmarshalBinary(head_buff)
 	if head.cmd == CMD_QUERY_ALL{
@@ -139,13 +146,17 @@ func Fetch_Input_Request( src io.Reader ) (Input_Request, error){
 	if head.cmd == CMD_EXIT{
 		return Input_Request_Exit{head},nil
 	}
-	if head.cmd == CMD_TRIGGER{
+	if head.cmd == CMD_TRIGGER{		
 		payload := make([]byte, head.size-4)
-		_,err := src.Read(payload)
+		fmt.Println("Payload size ",len(payload))
+		_,err := io.ReadFull(src, payload)
 		if err != nil{
 			return Input_Request_Nil{},err
 		}
-		return Input_Request_Trigger{head,payload},nil
+		ret := Input_Request_Trigger{}
+		ret.header = head
+		ret.UnmarshalBinary(payload)
+		return ret,nil
 	}
 	return Input_Request_Nil{},errors.New("Unrecognised command")	
 }
@@ -177,7 +188,7 @@ func (self Display_Request_Trigger) Put( link io.ReadWriter ) error{
 		return err
 	}
 	var res_buff[4]byte
-	_,err = link.Read(res_buff[:])
+	_,err = io.ReadFull(link, res_buff[:])
 	if err != nil{
 		return err
 	}
