@@ -11,28 +11,21 @@ using System.Threading;
 
 namespace WindowsDisplay
 {
-	public class DisplayComms
+	public class UiComms : BaseComms
 	{
-		public DisplayComms()
-		{
-			cert = X509Certificate.CreateFromCertFile(cert_path);
-		}
-
-		public void enqueue_new_config(Configuration conf)
-		{
-			lock (this)
-			{
-				pending_config = conf;
-			}
+		public UiComms(MainWindow mw)
+		{ 
+			gui = mw; 
 		}
 
 		public void enqueue_query()
-		{
+		{			
 			lock (this)
 			{
+				Console.Out.WriteLine("Enqueing query");
 				query_pending = true;
+				Monitor.Pulse(this);
 			}
-			Monitor.Pulse(this);
 		}
 
 		public void enqueue_trigger( string tag )
@@ -40,22 +33,36 @@ namespace WindowsDisplay
 			lock (this)
 			{
 				trigger_pending = tag;
+				Monitor.Pulse(this);
 			}
-			Monitor.Pulse(this);
 		}
 
+		public void enqueue_termination()
+		{
+			lock (this)
+			{
+				termination_required = true;
+				Monitor.Pulse(this);
+			}
+		}
+		/* Invoked as a thread from Program.cs */
 		public void comms_loop()
 		{
+			Console.Out.Write("UiComms loop entered");
 			bool qp;
 			string tp;
+			Console.Out.WriteLine("UI Comms entering event loop");
 			while (true)
 			{				
-				
-				ensure_config_current();
 				Monitor.Enter(this);
-				while (!query_pending && trigger_pending == null)
+				while (!query_pending && trigger_pending == null && !termination_required )
 				{
 					Monitor.Wait(this);
+				}
+				Console.Out.WriteLine("Something is pending");
+				if (termination_required)
+				{
+					return;
 				}
 				qp = query_pending;
 				tp = trigger_pending;
@@ -75,32 +82,10 @@ namespace WindowsDisplay
 			}
 		}
 
-		private void ensure_config_current()
-		{
-			bool need_swap = false;
-			lock (this)
-			{
-				if (pending_config != null)
-				{
-					need_swap = true;
-					active_config = pending_config;
-					pending_config = null;
-				}
-			}
-			if (need_swap)
-			{
-				if (server != null)
-				{
-					server.Stop();
-				}
-				server = new TcpListener(IPAddress.Any, Int32.Parse(active_config.port));
-				server.Start();
-			}
-		}
-
 		private void dispatch_query()
-		{
+		{			
 			SslStream peer = connect_to_server();
+			Console.Out.WriteLine("Calling console to write query");
 			Protocol.WriteQuery(peer);
 			string[] tags = Protocol.ReadQueryResponse(peer);
 			gui.DisplayQueryResponse(tags);
@@ -111,20 +96,33 @@ namespace WindowsDisplay
 		{
 			SslStream peer = connect_to_server();
 			Protocol.WriteTrigger(peer, tag);
-			string pw = Protocol.ReadTriggerResponse(peer);
-			gui.DisplayTriggerResponse(pw);
+			Protocol.ReadTriggerResponse(peer);
 			peer.Dispose();
 		}
 
 		SslStream connect_to_server()
 		{
+			
+			Configuration conf = gui.GetCurrentConfig();
+			if (conf == null)
+			{
+				Console.Error.WriteLine("No configuration defined, aborting connection");
+				throw new ConnectionError();
+			}
 			TcpClient client = new TcpClient();
-			client.Connect(active_config.server, active_config.port);
+			Console.Out.WriteLine("Connecting to server " + conf.server.address + ":" + conf.server.port.ToString());
+			client.Connect(conf.server.address, conf.server.port);
 			SslStream peer = new SslStream(client.GetStream(), false);
 
 			X509CertificateCollection certs = new X509CertificateCollection();
-			certs.Add(new X509Certificate(active_config.tls_combined_path, active_config.key_password));
-			peer.AuthenticateAsClient(active_config.server_hostname,
+			Console.Out.WriteLine("Loading credentials from " + conf.server.cert_key + " pw '" + conf.server.password + "'");
+			X509Certificate2 tmp = new X509Certificate2(conf.server.cert_key, conf.server.password);
+			Console.Out.WriteLine("Loaded server cert, issuer " + tmp.Issuer + " subject " + tmp.Subject);
+			Console.Out.WriteLine("Cert has key: " + tmp.HasPrivateKey);
+			certs.Add(tmp);
+			Console.Out.WriteLine("Pool contains " + certs.Count + " certificates");
+			Console.Out.WriteLine("Certs loaded, starting authentication, hostname " + conf.server_hostname);
+			peer.AuthenticateAsClient(conf.server_hostname,
 									  certs,
 									  SslProtocols.Tls12,
 									  false);
@@ -146,22 +144,15 @@ namespace WindowsDisplay
 				peer.Dispose();
 				throw new ConnectionError();
 			}
+			Console.Out.WriteLine("Connection to server established");
 			return peer;
 		}
 
 		private bool query_pending = false;
 		private string trigger_pending = null;
-
-		
-		private Configuration active_config;
-		private Configuration pending_config = null;
-		private TcpListener server = null;
-
-		private X509Certificate cert = null;
-
+		private bool termination_required = false;
 		private MainWindow gui = null;
 
-		private class ConnectionError : Exception{ }
 	}
 
 }
