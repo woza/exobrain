@@ -77,18 +77,20 @@ command:
 The query response is more complicated, and comes in two flavours:
 success and failure.  Success messages have the following format:
 
-   | Status    | Encoding | Count   | Size    | Tag      | Size    | Tag      | ...
-   | 4 bytes   |  4 bytes | 4 bytes | 4 bytes | variable | 4 bytes | variable |
-   | STATUS_OK | ENCODING |
+   |Msg Size | Status    | Encoding | Count   | Size    | Tag      | Size    | Tag      | ...
+   | 4 bytes | 4 bytes   |  4 bytes | 4 bytes | 4 bytes | variable | 4 bytes | variable |
+   |         | STATUS_OK | ENCODING |
 
 The "count" element contains the number of tags in the response.  Each tag is transmitted as two elements:
    1. The size of the tag, when stored in the specified Encoding
    2. The tag itself
 
+The field "Msg Size" contains the size of the entire message, including itself.
+
 Fail messages have the following format:
-   | Status      |
-   | 4 bytes     |
-   | STATUS_FAIL |
+   |Msg Size | Status      |
+   |4 bytes  | 4 bytes     |
+   | 8       | STATUS_FAIL |
 
 2. Trigger request / response
 
@@ -96,7 +98,7 @@ The "Trigger" message is used by the client to cause the password for a
 given tag to be sent to the display.  The request message has the following format:
    | Size    | Command   | Encoding | Tag      |
    | 4 bytes | 4 bytes   | 4 bytes  | variable |
-   | 4 bytes | CMD_TRIGGER | ENCODING |
+             | CMD_TRIGGER | ENCODING |
 
 There are again two possible responses, failure or success.  The fail message has the following format:
    | Status      |
@@ -115,7 +117,10 @@ request the display of a password.  It has the following format:
 
    | Size    | Command     | Encoding | Password |
    | 4 bytes | 4 bytes     | 4 bytes  | variable |
-   | 4 bytes | CMD_DISPLAY | ENCODING |
+   | N       | CMD_DISPLAY | ENCODING |
+
+The value of N (i.e: the size sent in the header) is 12 bytes + the
+length of the password in the specified encoding.
 
 The display will send back one of two messages, denoting succes or failure:
 
