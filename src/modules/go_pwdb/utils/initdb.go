@@ -73,7 +73,10 @@ func main(){
 		fmt.Println("Failed to read password: ",err)
 		return
 	}
-	conf := config.Config{db_path, salt, db_pw, "", "", "", "", "", ""}
+	conf := config.Config{db_path, salt, db_pw,
+		config.Credentials{"", "", ""},
+		config.Credentials{"", "", ""},
+		"", "", ""}
 	/* Save a new database file, empty apart from metadata */
 	db.Save(conf)
 	
