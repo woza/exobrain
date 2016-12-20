@@ -1,36 +1,34 @@
 package db
 
 import (
-	"config"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/sha256"
 	"os"
-	"encoding/json"
-	"crypto/rand"
+	"config"
 	"errors"
+	"crypto/aes"
+	"crypto/rand"
+	"crypto/cipher"
+	"encoding/json"
+	"crypto/sha256"
+	"encoding/binary"
 	"golang.org/x/crypto/pbkdf2"
 )
 
-var pw_map map[string]string
+var pw_map map[string]string = make( map[string]string )
 
-func Load( config config.Config ) error {
-	existing, err := fetch_decrypted( config );
+func Load( config config.Config ) (config.Config, error) {
+	existing, fetched_salt, err := fetch_decrypted( config );
+	config.Salt = fetched_salt
 	if err != nil {
-		if os.IsNotExist(err) {
-			pw_map = make( map[string]string )
-			return nil;
-		}
-		return err;
+		return config,err;
 	}
 
 	if existing != nil {
 		err = json.Unmarshal(existing, &pw_map);
 		if err != nil {
-			return err;
+			return config,err;
 		}
 	}
-	return nil
+	return config,nil
 }
 
 func Save( config config.Config ) error {
@@ -85,35 +83,64 @@ func put_encrypted( config config.Config, data []byte ) error {
 		return err
 	}
 
-	cipher_bytes := []byte{}
-	extra_bytes := []byte{}
-	cipher_bytes = keystream.Seal( cipher_bytes, new_nonce, data,
-		extra_bytes )
-
 	out_handle, err := os.OpenFile(config.Path,
 		os.O_WRONLY | os.O_CREATE | os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
 	defer out_handle.Close()
+	version := []byte{1}
+	_,err = out_handle.Write( version )
+	if err != nil{
+		return err
+	}
+	salt_len := make([]byte, 4)
+	binary.BigEndian.PutUint32(salt_len, uint32(len(config.Salt)))
+	_,err = out_handle.Write( salt_len )
+	if err != nil{
+		return err
+	}
+ 	
+	_,err = out_handle.Write( config.Salt )
+	if err != nil{
+		return err
+	}
  	_, err = out_handle.Write( new_nonce )
 	if err != nil{
 		return err
 	}
- 	_, err = out_handle.Write( cipher_bytes )
+	
+	if len(data) > 0 {
+		cipher_bytes := []byte{}
+		extra_bytes := []byte{}
+		cipher_bytes = keystream.Seal( cipher_bytes, new_nonce, data,
+			extra_bytes )
+
+		_, err = out_handle.Write( cipher_bytes )
+	}
 	return err
 }
 	
-func fetch_decrypted( config config.Config ) ([]byte, error) {
+func fetch_decrypted( config config.Config ) ([]byte, []byte, error) {
 	raw_bytes, err := get_file_contents(config.Path);
 	if err != nil{
-		return nil,err;
+		return nil,nil,err;
 	}
 
 	if len(raw_bytes) == 0 {
-		return []byte{},nil
+		return []byte{},[]byte{},nil
 	}
-
+	off := 0
+	version := raw_bytes[off]
+	if version != 1{
+		return nil, nil, errors.New("Unhandled database version")
+	}
+	off += 1
+	salt_len := int(binary.BigEndian.Uint32(raw_bytes[off:off + 4]))
+	off += 4
+	config.Salt = raw_bytes[off:off+salt_len]
+	off += salt_len
+	
 	key := pbkdf2.Key(
 		[]byte(config.Password),
 		config.Salt,
@@ -123,24 +150,27 @@ func fetch_decrypted( config config.Config ) ([]byte, error) {
 
 	block,err := aes.NewCipher( key )
 	if err != nil {
-		return nil,err
+		return nil,config.Salt,err
 	}
 	
 	keystream,err := cipher.NewGCM( block )
 	if err != nil {
-		return nil,err
+		return nil,config.Salt,err
 	}
 	plain_bytes := []byte{}
-	nonce_bytes := raw_bytes[:keystream.NonceSize()]
-	cipher_bytes := raw_bytes[keystream.NonceSize():]
+	nonce_bytes := raw_bytes[off:off +keystream.NonceSize()]
+	off += keystream.NonceSize()
+	if off == len(raw_bytes){
+		return nil, config.Salt,nil
+	}
+	cipher_bytes := raw_bytes[off:]
 	extra_bytes := []byte{}
 	plain_bytes,err = keystream.Open( plain_bytes, nonce_bytes,
 		cipher_bytes, extra_bytes )
 	if err != nil {
-		return nil,err
+		return nil,config.Salt,err
 	}
-
-	return plain_bytes,nil
+	return plain_bytes,config.Salt,nil
 }	
 
 func get_file_contents( path string ) ([]byte,error) {

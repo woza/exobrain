@@ -7,16 +7,20 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"syscall"
 	"fmt"
-	"encoding/hex"
 )
+
+type Credentials struct{
+	TLS_key_path string
+	TLS_cert_path string
+	TLS_ca_path string
+}
 
 type Config struct{
 	Path string
 	Salt []byte
 	Password string
-	TLS_key_path string
-	TLS_cert_path string
-	TLS_ca_path string
+	From_ui Credentials
+	To_display Credentials
 	Display_Address string
 	Accept_Address string
 	Display_Hostname string
@@ -40,31 +44,21 @@ func New() (Config, error){
 /* Core function, exported for automation of tests */
 func CoreParser( src []string ) (Config, error){
 	ret := Config{"", []byte{}, "",
-		"", "", "",
+		Credentials{"", "", ""},
+		Credentials{"", "", ""},
 		"", "", ""}
-	hex_salt := ""
 	conf_path := ""
 	args := flag.NewFlagSet("gopwdb", flag.ContinueOnError)
 	args.StringVar(&conf_path, "conf", "/usr/local/etc/gopwdb.conf",
 		"Path to config file")
-	args.StringVar(&ret.Path, "db", "", "Path to database")
-	args.StringVar(&hex_salt, "salt", "", "Salt for database password")
-	// But password cannot be passed via command line	
-	args.StringVar(&ret.TLS_key_path, "key", "",
-		"TLS key file")
-	args.StringVar(&ret.TLS_cert_path, "cert", "",
-		"TLS cert file")
-	args.StringVar(&ret.TLS_ca_path, "ca", "",
-		"TLS CA file")
-	args.StringVar(&ret.Display_Address, "display", "",
-		"Display Address")
-	args.StringVar(&ret.Accept_Address, "accept", "",
-		"Address to accept connections on")
-	args.StringVar(&ret.Display_Hostname, "dhost", "",
-		"Hostname to validate display host")
 	args.Parse(src)
-	fmt.Println("Parsing config file ",conf_path);
-	handle,err := os.Open(conf_path)
+	return parse_config_file( ret, conf_path )
+}
+			
+func parse_config_file( conf Config, path string )(Config, error){
+	
+	fmt.Println("Parsing config file ",path);
+	handle,err := os.Open(path)
 	if err == nil {
 		defer handle.Close()
 		scanner := bufio.NewScanner(handle)
@@ -75,37 +69,42 @@ func CoreParser( src []string ) (Config, error){
 			}
 			key := strings.TrimSpace(bits[0])
 			value := strings.TrimSpace(bits[1])
-			if key == "db" && ret.Path == ""{
-				ret.Path = value
+			if key == "db" && conf.Path == ""{
+				conf.Path = value
 			}
-			if key == "salt" && hex_salt == ""{
-				hex_salt = value
+			if key == "ui_key" && conf.From_ui.TLS_key_path == ""{
+				conf.From_ui.TLS_key_path = value
 			}
-			if key == "key" && ret.TLS_key_path == ""{
-				ret.TLS_key_path = value
+			if key == "ui_cert" && conf.From_ui.TLS_cert_path == ""{
+				conf.From_ui.TLS_cert_path = value
 			}
-			if key == "cert" && ret.TLS_cert_path == ""{
-				ret.TLS_cert_path = value
+			if key == "ui_ca" && conf.From_ui.TLS_ca_path == ""{
+				conf.From_ui.TLS_ca_path = value
 			}
-			if key == "ca" && ret.TLS_ca_path == ""{
-				ret.TLS_ca_path = value
+			if key == "display_key" && conf.To_display.TLS_key_path == ""{
+				conf.To_display.TLS_key_path = value
+			}
+			if key == "display_cert" && conf.To_display.TLS_cert_path == ""{
+				conf.To_display.TLS_cert_path = value
+			}
+			if key == "display_ca" && conf.To_display.TLS_ca_path == ""{
+				conf.To_display.TLS_ca_path = value
 			}
 			if key == "display_address" &&
-				ret.Display_Address == ""{
-				ret.Display_Address = value
+				conf.Display_Address == ""{
+				conf.Display_Address = value
 			}
 			if key == "accept" &&
-				ret.Accept_Address == ""{
-				ret.Accept_Address = value
+				conf.Accept_Address == ""{
+				conf.Accept_Address = value
 			}
 			if key == "display_name" &&
-				ret.Display_Hostname == ""{
-				ret.Display_Hostname = value
+				conf.Display_Hostname == ""{
+				conf.Display_Hostname = value
 			}
 			
 		}
 	}
-	ret.Salt,err = hex.DecodeString(hex_salt)
-	return ret,err
+	return conf,nil
 }
-			
+	

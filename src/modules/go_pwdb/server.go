@@ -23,7 +23,7 @@ func main() {
 		fmt.Println("Failed to load config: ",err)
 		return
 	}
-	err = db.Load(conf)
+	conf,err = db.Load(conf)
 	if  err != nil {
 		fmt.Println("Failed to load database: ",err)
 		return
@@ -106,7 +106,7 @@ func handle_client( tcp_client net.Conn, conf config.Config ){
 }
 
 func upgrade_to_tls( src net.Conn, conf config.Config ) *tls.Conn {
-        tls_conf,err := prep_tls_config( conf )
+        tls_conf,err := prep_tls_config( conf.From_ui )
 	if err != nil{
 		fmt.Println("Failed to prep TLS config: ", err)
 		return nil
@@ -114,11 +114,9 @@ func upgrade_to_tls( src net.Conn, conf config.Config ) *tls.Conn {
 
 	return tls.Server( src, tls_conf)
 }
-	
-
 
 func connect_to_display( conf config.Config ) (*tls.Conn, error){
-        tls_conf,err := prep_tls_config( conf )
+        tls_conf,err := prep_tls_config( conf.To_display )
 	if err != nil{
 		fmt.Println("Failed to prep TLS config: ", err)
 		return nil, err
@@ -134,18 +132,18 @@ func connect_to_display( conf config.Config ) (*tls.Conn, error){
 	return display,err
 }
 
-func prep_tls_config( conf config.Config ) (*tls.Config, error ){
+func prep_tls_config( cred config.Credentials ) (*tls.Config, error ){
 	cert, err := tls.LoadX509KeyPair(
-		conf.TLS_cert_path,
-		conf.TLS_key_path)
+		cred.TLS_cert_path,
+		cred.TLS_key_path)
 	if err != nil{
 		fmt.Println("Failed to read TLS credentials: ", err)
 		return nil, err
 	}
 
 	pool := x509.NewCertPool()
-	pem_certs, err := ioutil.ReadFile(conf.TLS_ca_path)
-	fmt.Println("Loading CA certs from ",conf.TLS_ca_path)
+	pem_certs, err := ioutil.ReadFile(cred.TLS_ca_path)
+	fmt.Println("Loading CA certs from ",cred.TLS_ca_path)
 	ioutil.WriteFile("/tmp/CA.back", []byte(pem_certs), 0644)
 	
 	if err != nil{
