@@ -8,9 +8,8 @@ import(
 	"bufio"
 	"config"
 	"db"
-	"golang.org/x/crypto/ssh/terminal"
-	"syscall"
 	"errors"
+	"input"
 )
 
 type Param struct{
@@ -19,7 +18,8 @@ type Param struct{
 }
 
 func main(){
-	conf_path,err := get_input("Enter location for new configuration file: ")
+	src := bufio.NewReader(os.Stdin)
+	conf_path,err := get_input(src, "Enter location for new configuration file: ")
 	if err != nil{
 		fmt.Println("Failed to fetch validated input: ",err)
 		return
@@ -47,7 +47,7 @@ func main(){
 	var val	= ""
 	var db_path = "";
 	for _,p := range params{
-		val,err = get_input(p.prompt)
+		val,err = get_input(src, p.prompt)
 		if err != nil{
 			fmt.Println("Failed to fetch validated input: ",err)
 			return
@@ -68,11 +68,12 @@ func main(){
 		fmt.Println("Failed to generate whole random salt: ",err)
 		return
 	}
-	db_pw,err := get_pw()
+	db_pw,err := get_pw(src)
 	if err != nil{
 		fmt.Println("Failed to read password: ",err)
 		return
 	}
+	fmt.Println(db_pw)
 	conf := config.Config{db_path, salt, db_pw,
 		config.Credentials{"", "", ""},
 		config.Credentials{"", "", ""},
@@ -83,31 +84,29 @@ func main(){
 	fmt.Println("Configuration file written to " + conf_path)
 }
 
-func get_input( prompt string ) (string, error){
+func get_input( src *bufio.Reader, prompt string ) (string, error){
 	fmt.Print(prompt)
-	src := bufio.NewReader(os.Stdin)
 	ret,err := src.ReadString('\n')
 	return strings.TrimSpace(ret),err
 }
 				
-func get_pw() (string, error){
-	fmt.Print("Enter database password: ")
-	raw_pw, err := terminal.ReadPassword(int(syscall.Stdin))
+func get_pw(src *bufio.Reader) (string, error){
+	fmt.Print("Enter database password: ")	
+	pw, err := input.Password(src)
 	fmt.Print("\n")
 	if err != nil{
 		return "",err
 	}
 	fmt.Print("Confirm database password: ")	
-	raw_pw2, err := terminal.ReadPassword(int(syscall.Stdin))
+	pw2, err := input.Password(src)
 	fmt.Print("\n")
 	if err != nil{
 		return "",err
 	}
 
-	pw := strings.TrimSpace(string(raw_pw))
-	pw2 := strings.TrimSpace(string(raw_pw2))
 	if pw != pw2 {
 		return "", errors.New("Passwords did not match")
 	}
 	return pw,nil
 }
+

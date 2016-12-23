@@ -3,12 +3,12 @@ package main
 import(
 	"db"
 	"fmt"
-	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"strings"
-	"syscall"
 	"config"
 	"errors"
+	"input"
+	"bufio"
 )
 
 func main(){
@@ -16,8 +16,9 @@ func main(){
 		"-conf", os.Args[1],
 	}
 	tag := strings.TrimSpace(os.Args[2])
+	src := bufio.NewReader(os.Stdin)
 
-	pw,err := get_user_pw()
+	pw,err := get_user_pw(src)
 	if  err != nil {
 		fmt.Println("Failed to get passwords: ",err)
 		return
@@ -28,12 +29,11 @@ func main(){
 		return
 	}
 	fmt.Print("Enter database password: ")
-	raw_pw, err := terminal.ReadPassword(int(syscall.Stdin))
+	conf.Password, err = input.Password(src)
 	if err != nil{
 		fmt.Println("Failed to read password")
 		return
 	}
-	conf.Password = strings.TrimSpace(string(raw_pw))
 	
 	conf,err = db.Load(conf)
 	if  err != nil {
@@ -56,20 +56,18 @@ func main(){
 	fmt.Println("Password added")
 }
 
-func get_user_pw() (string,error){
+func get_user_pw( src *bufio.Reader) (string,error){
 	fmt.Print("Enter password: ")
-	raw_pw, err := terminal.ReadPassword(int(syscall.Stdin))
+	pw, err := input.Password(src)
 	if err != nil{
 		return "", errors.New("Failed to read password")
 	}
 	fmt.Print("\nConfirm password: ")
-	raw_confirm, err := terminal.ReadPassword(int(syscall.Stdin))
+	confirm, err := input.Password(src)
 	if err != nil{
 		return "", errors.New("Failed to read password")
 	}
 	fmt.Print("\n")
-	pw := strings.TrimSpace(string(raw_pw))
-	confirm := strings.TrimSpace(string(raw_confirm))
 	if (pw != confirm){
 		return "", errors.New("Passwords don't match")
 	}

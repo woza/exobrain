@@ -3,11 +3,11 @@ package main
 import(
 	"db"
 	"fmt"
-	"golang.org/x/crypto/ssh/terminal"
 	"os"
-	"strings"
-	"syscall"
 	"config"
+	"input"
+	"bufio"
+	"strings"
 )
 
 func main(){
@@ -22,12 +22,11 @@ func main(){
 		return
 	}
 	fmt.Print("Enter database password: ")
-	raw_pw, err := terminal.ReadPassword(int(syscall.Stdin))
+	conf.Password, err = input.Password(bufio.NewReader(os.Stdin))
 	if err != nil{
 		fmt.Println("Failed to read password")
 		return
 	}
-	conf.Password = strings.TrimSpace(string(raw_pw))
 	
 	conf,err = db.Load(conf)
 	if  err != nil {
