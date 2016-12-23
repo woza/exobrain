@@ -51,6 +51,10 @@ func Put( tag string, pw string ) {
 	pw_map[tag] = pw
 }
 
+func Remove( tag string ){
+	delete(pw_map, tag)
+}
+
 func GetAll() []string {
 	// Sets up a constant order - in Go, iteration order over
 	//  maps is randomised
