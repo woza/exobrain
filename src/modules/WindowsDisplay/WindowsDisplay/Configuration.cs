@@ -12,11 +12,10 @@ namespace WindowsDisplay
 		
 			/* Try and populate from previous settings */
 			string dir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			string full_path = Path.Combine(dir, "exobrain.conf");
-			if (File.Exists(full_path))
+			src_path = Path.Combine(dir, "exobrain.conf");
+			if (File.Exists(src_path))
 			{
-				Console.Out.WriteLine("Reading configuration from " + full_path);
-				string[] old = File.ReadAllLines(full_path);
+				string[] old = File.ReadAllLines(src_path);
 				fromStrings(old);
 			}
 		}
@@ -42,7 +41,7 @@ namespace WindowsDisplay
 
 		public bool validate()
 		{
-			Console.Out.WriteLine("=====\nValidating " + this.toString()+"=====");
+			/* TODO */
 			return true;
 		}
 
@@ -57,7 +56,6 @@ namespace WindowsDisplay
 			public string address;
 			public int port;
 			public string cert_key;
-			public string ca;
 			public string password;
 			public ConnInfo(string t)
 			{
@@ -65,7 +63,6 @@ namespace WindowsDisplay
 				address = "";
 				port = 0;
 				cert_key = "";
-				ca = "";
 				password = "";
 			}
 
@@ -79,7 +76,6 @@ namespace WindowsDisplay
 						  address.Equals(other.address) &&
 									   port == other.port &&
 						  cert_key.Equals(other.cert_key) &&
-						  ca.Equals(other.ca) &&
 						  password.Equals(other.password);
 			}
 
@@ -90,7 +86,6 @@ namespace WindowsDisplay
 				ret += tag + ".address = " + address + "\n";
 				ret += tag + ".port = " + port.ToString() + "\n";
 				ret += tag + ".cert_key = " + cert_key + "\n";
-				ret += tag + ".ca = " + ca + "\n";
 				return ret;
 			}
 		};
@@ -120,11 +115,6 @@ namespace WindowsDisplay
 					server.cert_key = value;
 					continue;
 				}
-				if (key == "server.ca")
-				{
-					server.ca = value;
-					continue;
-				}
 				if (key == "server.address")
 				{
 					server.address = value;
@@ -138,11 +128,6 @@ namespace WindowsDisplay
 				if (key == "display.cert_key")
 				{
 					display.cert_key = value;
-					continue;
-				}
-				if (key == "display.ca")
-				{
-					display.ca = value;
 					continue;
 				}
 				if (key == "display.address")
@@ -174,5 +159,6 @@ namespace WindowsDisplay
 		private string validation_failure_reason = "";
 		public string server_hostname { get; set; }
 		public int cmd_port = 0;
+		public string src_path; /* For debug output - not persistent or part of equality check */
 	}
 }

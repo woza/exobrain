@@ -14,22 +14,39 @@ public partial class MainWindow : Gtk.Window
 
 		/* Initial config from existing settings */
 		curr_config = new Configuration();
-
-
-		ui_comms_worker.enqueue_new_config(curr_config);
+		Log("Configuration loaded from " + curr_config.src_path);
 		ui_comms_thread = new Thread(new ThreadStart(ui_comms_worker.comms_loop));
 		ui_comms_thread.Start();
 
-		display_comms_worker.enqueue_new_config(curr_config);
 		display_comms_thread = new Thread(new ThreadStart(display_comms_worker.comms_loop));
-		if (display_comms_worker.have_config())
+		if (display_comms_worker.is_sufficient(curr_config))
 		{
 			display_comms_thread.Start();
 		}
+
+		setup_tag_display();
+
+	}
+
+	private void setup_tag_display()
+	{
+		view = new ComboBox();
+
+		view.Changed += Trigger;
+		main_grid.Attach(view, 0, 1, 2, 3);
+
+		tag_list = new ListStore(typeof(string));
+		view.Model = tag_list;
+
+		CellRenderer render = new CellRendererText();
+		view.PackStart(render, true);
+		view.AddAttribute(render, "text", 0);
+		ShowAll();
 	}
 
 	public void Log(string msg)
 	{
+		log_output.Buffer.Text += msg + "\n";
 		Console.Out.WriteLine(msg);
 	}
 
@@ -59,35 +76,22 @@ public partial class MainWindow : Gtk.Window
 			
 	private void draw_tag_list(string[] tags)
 	{
-		Console.Out.WriteLine("Drawing tag list (length " + tags.Length + ") onto screen");
-		if (tag_display != null)
-		{
-			foreach (Widget w in tag_display.AllChildren)
-			{
-				w.Destroy();
-			}
-			tag_display.Destroy();
-		}
-			
-		tag_display = new Table((uint)tags.Length, 1, false);
+		Array.Sort(tags);
+		tag_list.Clear();
+		string[] element = new string[1];
 		for (uint i = 0; i < tags.Length; ++i)
 		{
-			Console.Out.WriteLine("Drawing tag [" + i + "] = " + tags[i]);
-			Button b = new Button(tags[i]);
-			b.Clicked += Trigger;
-			tag_display.Attach(b, 0, 1, i, i + 1);
-			b.Show();
+			element[0] = tags[i];
+			tag_list.AppendValues(element);
 		}
-		main_grid.ShowAll();
-		main_grid.Attach(tag_display, 0, 1, 2, 3);
-		tag_display.Show();
+		view.ShowAll();
+		Log("New tag set received, make selection from drop-down box");
 	}
 
 	protected void Trigger(object sender, EventArgs a)
 	{
-		Button src = (Button)sender;
-		string tag = src.Label;
-		Console.Out.WriteLine("GUI triggering tag " + tag);
+		ComboBox src = (ComboBox)sender;
+		string tag = src.ActiveText;
 		ui_comms_worker.enqueue_trigger(tag);
 	}
 
@@ -99,7 +103,6 @@ public partial class MainWindow : Gtk.Window
 
 	protected void DisplayReconfigure(object sender, EventArgs e)
 	{
-		Console.Out.WriteLine("Displaying config information");
 		config_window = new ConfigWindow();
 		config_window.Destroyed += OnReconfigure;
 		config_window.Show();
@@ -107,7 +110,6 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnReconfigure(object sender, EventArgs e)
 	{
-		Console.Out.WriteLine("Handling reconfigure input");
 		Configuration pending_config = config_window.get_new_config();
 		if (pending_config != null)
 		{
@@ -116,8 +118,8 @@ public partial class MainWindow : Gtk.Window
 				curr_config = pending_config;
 			}
 		}
-		display_comms_worker.enqueue_new_config(curr_config);
-		if ( display_comms_thread.ThreadState == ThreadState.Unstarted && display_comms_worker.have_config())
+
+		if ( display_comms_thread.ThreadState == ThreadState.Unstarted && display_comms_worker.is_sufficient(pending_config))
 		{
 			display_comms_thread.Start();
 		}
@@ -125,7 +127,6 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnRefresh(object sender, EventArgs e)
 	{
-		Console.Out.WriteLine("Refresh click detected");
 		lock(this)
 		{
 			if (curr_config.server.password == "" || curr_config.display.password == "" )
@@ -170,10 +171,11 @@ public partial class MainWindow : Gtk.Window
 
 	protected void GracefulShutdown(object sender, EventArgs e)
 	{
-		Console.Out.WriteLine("Graceful shutdown invoked");
 		ui_comms_worker.enqueue_termination();
 		display_comms_worker.enqueue_termination();
 	}
+	private ListStore tag_list;
+
 	private Configuration curr_config = null;
 	private ConfigWindow config_window;
 	private Thread display_comms_thread = null;
@@ -181,5 +183,9 @@ public partial class MainWindow : Gtk.Window
 	private DisplayComms display_comms_worker = null;
 	private Thread ui_comms_thread = null;
 	private UiComms ui_comms_worker = null;
-	private Table tag_display = null;
+	private ComboBox view = null;
+
+	protected void OnTagSelected(object sender, EventArgs e)
+	{
+	}
 }

@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections;
-using System.Net;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Net.Security;
 using System.Security.Authentication;
-using System.Text;
 using System.Security.Cryptography.X509Certificates;
-using System.IO;
 using System.Threading;
 
 namespace WindowsDisplay
 {
-	public class UiComms : BaseComms
+	public class UiComms
 	{
 		public UiComms(MainWindow mw)
 		{ 
@@ -22,7 +19,6 @@ namespace WindowsDisplay
 		{			
 			lock (this)
 			{
-				Console.Out.WriteLine("Enqueing query");
 				query_pending = true;
 				Monitor.Pulse(this);
 			}
@@ -48,10 +44,8 @@ namespace WindowsDisplay
 		/* Invoked as a thread from Program.cs */
 		public void comms_loop()
 		{
-			Console.Out.Write("UiComms loop entered");
 			bool qp;
 			string tp;
-			Console.Out.WriteLine("UI Comms entering event loop");
 			while (true)
 			{				
 				Monitor.Enter(this);
@@ -59,7 +53,6 @@ namespace WindowsDisplay
 				{
 					Monitor.Wait(this);
 				}
-				Console.Out.WriteLine("Something is pending");
 				if (termination_required)
 				{
 					return;
@@ -71,12 +64,10 @@ namespace WindowsDisplay
 				Monitor.Exit(this);
 				if (qp)
 				{
-					Console.Out.WriteLine("Dispatching query");
 					dispatch_query();
 				}
 				if (tp != null)
 				{
-					Console.Out.WriteLine("Dispatching trigger " + trigger_pending);
 					dispatch_trigger(tp);
 				}
 			}
@@ -87,8 +78,12 @@ namespace WindowsDisplay
 			SslStream peer = connect_to_server();
 			Console.Out.WriteLine("Calling console to write query");
 			Protocol.WriteQuery(peer);
+			Stopwatch clock = Stopwatch.StartNew();
 			string[] tags = Protocol.ReadQueryResponse(peer);
+			TimeSpan split = clock.Elapsed;
 			gui.DisplayQueryResponse(tags);
+			TimeSpan finish = clock.Elapsed;
+			Console.Out.WriteLine("Processing time for query response: split " + split.Milliseconds + "ms total " + finish.Milliseconds + "ms");
 			peer.Dispose();
 		}
 

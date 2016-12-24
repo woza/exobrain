@@ -14,9 +14,7 @@ namespace WindowsDisplay
 
 		private void prefill()
 		{
-			server_ca_value.Text = new_conf.server.ca;
 			server_ck_value.Text = new_conf.server.cert_key;
-			display_ca_value.Text = new_conf.display.ca;
 			display_ck_value.Text = new_conf.display.cert_key;
 			display_address_value.Text = new_conf.display.address;
 			display_port_value.Text = new_conf.display.port.ToString();
@@ -39,9 +37,7 @@ namespace WindowsDisplay
 
 		protected void ApplyReconfig(object sender, EventArgs e)
 		{
-			new_conf.server.ca = server_ca_value.Text;
 			new_conf.server.cert_key = server_ck_value.Text;
-			new_conf.display.ca = display_ca_value.Text;
 			new_conf.display.cert_key = display_ck_value.Text;
 
 			new_conf.display.address = display_address_value.Text;
@@ -64,19 +60,9 @@ namespace WindowsDisplay
 			this.Destroy();
 		}
 
-		protected void OnBrowseServerCA(object sender, EventArgs e)
-		{
-			get_file(server_ca_value);
-		}
-
 		protected void OnBrowseServerCred(object sender, EventArgs e)
 		{
 			get_file(server_ck_value);
-		}
-
-		protected void OnBrowseDisplayCA(object sender, EventArgs e)
-		{
-			get_file(display_ca_value);
 		}
 
 		protected void OnBrowseDisplayCred(object sender, EventArgs e)

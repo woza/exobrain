@@ -12,7 +12,7 @@ using Gtk;
 
 namespace WindowsDisplay
 {
-	public class DisplayComms : BaseComms
+	public class DisplayComms 
 	{
 		public DisplayComms(MainWindow mw)
 		{ 
@@ -35,59 +35,44 @@ namespace WindowsDisplay
 
 		private NetworkStream connect_to_back_channel()
 		{
+			Configuration conf = gui.GetCurrentConfig();
 			IPEndPoint dest;
 			lock (this)
 			{
-				dest = new IPEndPoint(IPAddress.Loopback, active_config.cmd_port);
+				dest = new IPEndPoint(IPAddress.Loopback, conf.cmd_port);
 			}
 			System.Net.Sockets.Socket sock = new System.Net.Sockets.Socket(SocketType.Stream, ProtocolType.Tcp);
 			sock.Connect(dest);
 			return new NetworkStream(sock, true);
 		}
 
-		public new void enqueue_new_config(Configuration conf)
-		{
-			base.enqueue_new_config(conf);
-			ensure_config_current();
-		}
-			    
-		public bool have_config()
+		public bool is_sufficient(Configuration conf)
 		{
 			lock(this)
 			{
-				if (active_config == null)
+				if (conf == null)
 				{
-					Console.Error.WriteLine("Haveconfig failed: 0");
 					return false;
 				}
-				if (active_config.cmd_port == 0)
+				if (conf.cmd_port == 0)
 				{
-					Console.Error.WriteLine("Haveconfig failed: 1");
 					return false;
 				}
-				if (active_config.display == null)
+				if (conf.display == null)
 				{
-					Console.Error.WriteLine("Haveconfig failed: 2");
 					return false;
 				}
-				if (active_config.display.address == "")
+				if (conf.display.address == "")
 				{
-					Console.Error.WriteLine("Haveconfig failed: 3");
 					return false;
 				}
-				if (active_config.display.port == 0)
+				if (conf.display.port == 0)
 				{
-					Console.Error.WriteLine("Haveconfig failed: 4");
 					return false;
 				}
-				if (active_config.display.ca == "")
+
+				if (conf.display.cert_key == "")
 				{
-					Console.Error.WriteLine("Haveconfig failed: 5");
-					return false;
-				}
-				if (active_config.display.cert_key == "")
-				{
-					Console.Error.WriteLine("Haveconfig failed: 6");
 					return false;
 				}
 			}
@@ -98,22 +83,16 @@ namespace WindowsDisplay
 		/* Invoked as a thread from Program.cs */
 		public void comms_loop()
 		{
-			Console.Out.WriteLine("DisplayComms entering event loop");
 			while (true)
 			{
 				Stream client = next_client();
-				Console.Out.WriteLine("Client accepted");
 				Tuple<UInt32, Protocol.cmd_t> header = Protocol.get_display_message_header(client);
-				Console.Out.WriteLine("Header read");
 				switch (header.Item2)
 				{
 					case Protocol.cmd_t.CMD_QUIT:
-						Console.Out.WriteLine("Quit command received over back channel");
 						return;
 					case Protocol.cmd_t.CMD_DISPLAY:
-						Console.Out.WriteLine("Display message read");
 						string pw = Protocol.ReadDisplayedTag(client, header.Item1);
-						Console.Out.WriteLine("PW read as '" + pw + "'");
 						gui.DisplayPassword(pw);
 						Protocol.WriteDisplayResponse(client);
 						break;
@@ -129,7 +108,6 @@ namespace WindowsDisplay
 				Configuration curr_config = gui.GetCurrentConfig();
 				if (!curr_config.Equals(last_config))
 				{
-					Console.Out.WriteLine("Spawning new remote server");
 					if (remote_server != null)
 					{
 						remote_server.Dispose();
@@ -184,7 +162,6 @@ namespace WindowsDisplay
 
 		private SslStream upgrade_to_tls(System.Net.Sockets.Socket raw)
 		{
-			Console.Out.WriteLine("Loading display server cers from " + last_config.display.cert_key + " pw " +last_config.display.password);
 			SslStream ret = new SslStream(new NetworkStream(raw, true), false);
 			X509Certificate2 cert = new X509Certificate2(last_config.display.cert_key,
 													   last_config.display.password);
