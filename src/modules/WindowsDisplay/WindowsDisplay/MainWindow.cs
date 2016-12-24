@@ -47,7 +47,6 @@ public partial class MainWindow : Gtk.Window
 	public void Log(string msg)
 	{
 		log_output.Buffer.Text += msg + "\n";
-		Console.Out.WriteLine(msg);
 	}
 
 	public void DisplayQueryResponse(string[] tags)

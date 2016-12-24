@@ -76,14 +76,9 @@ namespace WindowsDisplay
 		private void dispatch_query()
 		{			
 			SslStream peer = connect_to_server();
-			Console.Out.WriteLine("Calling console to write query");
 			Protocol.WriteQuery(peer);
-			Stopwatch clock = Stopwatch.StartNew();
 			string[] tags = Protocol.ReadQueryResponse(peer);
-			TimeSpan split = clock.Elapsed;
 			gui.DisplayQueryResponse(tags);
-			TimeSpan finish = clock.Elapsed;
-			Console.Out.WriteLine("Processing time for query response: split " + split.Milliseconds + "ms total " + finish.Milliseconds + "ms");
 			peer.Dispose();
 		}
 
@@ -105,18 +100,12 @@ namespace WindowsDisplay
 				throw new ConnectionError();
 			}
 			TcpClient client = new TcpClient();
-			Console.Out.WriteLine("Connecting to server " + conf.server.address + ":" + conf.server.port.ToString());
 			client.Connect(conf.server.address, conf.server.port);
 			SslStream peer = new SslStream(client.GetStream(), false);
 
 			X509CertificateCollection certs = new X509CertificateCollection();
-			Console.Out.WriteLine("Loading credentials from " + conf.server.cert_key + " pw '" + conf.server.password + "'");
 			X509Certificate2 tmp = new X509Certificate2(conf.server.cert_key, conf.server.password);
-			Console.Out.WriteLine("Loaded server cert, issuer " + tmp.Issuer + " subject " + tmp.Subject);
-			Console.Out.WriteLine("Cert has key: " + tmp.HasPrivateKey);
 			certs.Add(tmp);
-			Console.Out.WriteLine("Pool contains " + certs.Count + " certificates");
-			Console.Out.WriteLine("Certs loaded, starting authentication, hostname " + conf.server_hostname);
 			peer.AuthenticateAsClient(conf.server_hostname,
 									  certs,
 									  SslProtocols.Tls12,
