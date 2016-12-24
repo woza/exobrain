@@ -1,0 +1,12 @@
+# Ignore TLS stuff
+*.key
+*.crt
+*.ca
+*.req
+
+# Emacs backup files
+*~
+
+# Databases and config files
+*.db
+*.conf

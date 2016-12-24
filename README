@@ -15,8 +15,7 @@ GO password database
    
 1. cd $EXOBRAIN/src/modules/go_pwdb
 2. export GOPATH=`pwd` 
-3. go get
-4. go get
+3. go get -v golang.org/x/crypto/pbkdf2
 5. go build
 6. cd utils
 7. go build put.go
