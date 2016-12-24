@@ -4,8 +4,7 @@ import (
 	"os"
 	"bufio"
 	"strings"
-	"golang.org/x/crypto/ssh/terminal"
-	"syscall"
+	"input"
 	"fmt"
 )
 
@@ -31,13 +30,13 @@ func New() (Config, error){
 	if err != nil{
 		return Config{},err
 	}
+	src := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter database password: ")
-	raw_pw, err := terminal.ReadPassword(int(syscall.Stdin))
+	ret.Password,err = input.Password(src)
 	if err != nil{
 		return Config{},err
 	}
 
-	ret.Password = strings.TrimSpace(string(raw_pw))
 	return ret,nil
 }
 

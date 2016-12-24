@@ -28,7 +28,6 @@ func main() {
 		fmt.Println("Failed to load database: ",err)
 		return
 	}
-	fmt.Println("Listening on ",conf.Accept_Address)
 	ln, err := net.Listen("tcp", conf.Accept_Address)
 	if err != nil {
 		fmt.Println("Failed to create listening socket");
@@ -40,7 +39,6 @@ func main() {
 		if err != nil {
 			fmt.Println("Failed to accept client");
 		} else{
-		        fmt.Println("Accepted client")
 			handle_client( client, conf );
 		}
 	}
@@ -52,29 +50,20 @@ func handle_client( tcp_client net.Conn, conf config.Config ){
 	fail := protocol.Input_Response{ protocol.STATUS_FAIL }
 	
 	for{
-		fmt.Println("Awaiting next request")
 		req,err := protocol.Fetch_Input_Request(client)
 		if err != nil{
-			fmt.Println("Failed to receive input: ",err)
 			return
 		}
-		fmt.Println("Received request")
 		switch in_msg := req.(type){
 		case protocol.Input_Request_Query:
-			fmt.Println("QUERY_ALL command");
 			response := protocol.Input_Response_Query{
 				ENCODE_UTF8,
 				db.GetAll(),
 			}
-			fmt.Println("Tags in response: ",response.Tags)
 			_  = response.Put(client)
-			fmt.Println("Finished putting response")
 		case protocol.Input_Request_Exit:
-			fmt.Println("EXIT command");
 		case protocol.Input_Request_Trigger:			
-			fmt.Println("TRIGGER command")
 			tag := string(in_msg.GetPayload())
-			fmt.Println(tag)
 			pw,err := db.Get(tag)
 			if err != nil{
 				fmt.Println("Failed to retrieve password from database: ",
@@ -93,14 +82,12 @@ func handle_client( tcp_client net.Conn, conf config.Config ){
 			}
 			err = out_msg.Put(display)
 			if err != nil {
-				fmt.Println("Display returned failure")
+				fmt.Println("Display returned failure",err)
 				_ = fail.Put(client)
 			}else{
-				fmt.Println("Display returned success")
 				_ = ok.Put(client)
 			}
 			display.Close()
-			fmt.Println("Trigger processing finished")
 		}
 	}
 }
@@ -123,7 +110,6 @@ func connect_to_display( conf config.Config ) (*tls.Conn, error){
 	}
 
 	tls_conf.ServerName = conf.Display_Hostname
-	fmt.Println("Connecting to display @ ",conf.Display_Address)
 	display,err := tls.Dial( "tcp", conf.Display_Address, tls_conf )
 	if err != nil{
 		fmt.Println("Failed to connect to display")
@@ -143,7 +129,6 @@ func prep_tls_config( cred config.Credentials ) (*tls.Config, error ){
 
 	pool := x509.NewCertPool()
 	pem_certs, err := ioutil.ReadFile(cred.TLS_ca_path)
-	fmt.Println("Loading CA certs from ",cred.TLS_ca_path)
 	ioutil.WriteFile("/tmp/CA.back", []byte(pem_certs), 0644)
 	
 	if err != nil{
@@ -156,7 +141,6 @@ func prep_tls_config( cred config.Credentials ) (*tls.Config, error ){
 		return nil,err
 	}
 	ioutil.WriteFile("/tmp/CA.subjects", pool.Subjects()[0], 0644)
-	fmt.Println("Found subject count: ",len(pool.Subjects()))
 	
 	display_conf := &tls.Config{
 		Certificates : []tls.Certificate{cert},

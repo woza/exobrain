@@ -1,0 +1,11 @@
+# Ignore binaries
+put
+rekey
+list
+initdb
+delete
+
+#Ignore test artifacts
+utility_test.expect
+utility_test.tags
+fake_initdb.in

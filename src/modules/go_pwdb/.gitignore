@@ -1,0 +1,9 @@
+# Ignore test database and input files
+simple_test_ca
+simple_test.in
+
+#Ignore binary
+go_pwdb
+
+# Don't check in built packages
+pkg

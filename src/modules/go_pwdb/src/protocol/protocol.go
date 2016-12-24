@@ -106,12 +106,12 @@ func (self Input_Response_Query) MarshalBinary() ([]byte, error){
 func (self Display_Request_Trigger) MarshalBinary() ([]byte, error){
 	raw_pw := []byte(self.Password)
 	pw_len := len(raw_pw)
-	len := 12 + pw_len
-	ret := make([]byte, len)
-	binary.BigEndian.PutUint32(ret[0:4], uint32(len))
+	sz := 12 + pw_len
+	ret := make([]byte, sz)
+	binary.BigEndian.PutUint32(ret[0:4], uint32(sz))
 	binary.BigEndian.PutUint32(ret[4:8], CMD_DISPLAY_SHOW)
 	binary.BigEndian.PutUint32(ret[8:12], self.Encoding)
-	copy(ret[12:len], raw_pw)
+	copy(ret[12:sz], raw_pw)
 	return ret,nil
 }
 		
@@ -133,11 +133,10 @@ func (self Input_Request_Trigger) GetPayload() []byte {
 
 func Fetch_Input_Request( src io.Reader ) (Input_Request, error){
 	head_buff := make([]byte, 8)
-	n,err := io.ReadFull(src, head_buff)
+	_,err := io.ReadFull(src, head_buff)
 	if err != nil{
 		return Input_Request_Nil{},err
 	}
-	fmt.Println("Fetch_Input_Request read count: ",n)
 	head := Input_Request_Header{}
 	head.UnmarshalBinary(head_buff)
 	if head.cmd == CMD_QUERY_ALL{
@@ -148,7 +147,6 @@ func Fetch_Input_Request( src io.Reader ) (Input_Request, error){
 	}
 	if head.cmd == CMD_TRIGGER{		
 		payload := make([]byte, head.size-4)
-		fmt.Println("Payload size ",len(payload))
 		_,err := io.ReadFull(src, payload)
 		if err != nil{
 			return Input_Request_Nil{},err
@@ -182,7 +180,6 @@ func (self Display_Request_Trigger) Put( link io.ReadWriter ) error{
 	if err != nil{
 		return err
 	}
-
 	_,err = link.Write(msg)
 	if err != nil{
 		return err
@@ -190,6 +187,7 @@ func (self Display_Request_Trigger) Put( link io.ReadWriter ) error{
 	var res_buff[4]byte
 	_,err = io.ReadFull(link, res_buff[:])
 	if err != nil{
+		fmt.Println("Failed to read response ",err)
 		return err
 	}
 	code := binary.BigEndian.Uint32(res_buff[:])
